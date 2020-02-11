@@ -6,6 +6,7 @@ require (
 	github.com/christopherhein/go-version v0.0.0-20180807222509-fee8dd1f7c24
 	github.com/iancoleman/strcase v0.0.0-20180726023541-3605ed457bf7
 	github.com/inconshreveable/mousetrap v1.0.0
+	github.com/jteeuwen/go-bindata v3.0.7+incompatible // indirect
 	github.com/sirupsen/logrus v1.0.5
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.1

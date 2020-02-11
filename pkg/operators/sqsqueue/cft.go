@@ -128,6 +128,12 @@ func (s *Cloudformation) CreateStack() (output *cloudformation.CreateStackOutput
 		return output, err
 	}
 	fifoQueue := helpers.CreateParam("FifoQueue", helpers.Stringify(fifoQueueValue))
+	queueNameTemp := "{{.Obj.Spec.QueueName}}"
+	queueNameValue, err := helpers.Templatize(queueNameTemp, helpers.Data{Obj: s.SQSQueue, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	queueName := helpers.CreateParam("QueueName", helpers.Stringify(queueNameValue))
 
 	parameters := []*cloudformation.Parameter{}
 	parameters = append(parameters, resourceName)
@@ -142,6 +148,7 @@ func (s *Cloudformation) CreateStack() (output *cloudformation.CreateStackOutput
 	parameters = append(parameters, usedeadletterQueue)
 	parameters = append(parameters, visibilityTimeout)
 	parameters = append(parameters, fifoQueue)
+	parameters = append(parameters, queueName)
 
 	stackInputs.SetParameters(parameters)
 
@@ -229,6 +236,12 @@ func (s *Cloudformation) UpdateStack(updated *awsV1alpha1.SQSQueue) (output *clo
 		return output, err
 	}
 	fifoQueue := helpers.CreateParam("FifoQueue", helpers.Stringify(fifoQueueValue))
+	queueNameTemp := "{{.Obj.Spec.QueueName}}"
+	queueNameValue, err := helpers.Templatize(queueNameTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	queueName := helpers.CreateParam("QueueName", helpers.Stringify(queueNameValue))
 
 	parameters := []*cloudformation.Parameter{}
 	parameters = append(parameters, resourceName)
@@ -243,6 +256,7 @@ func (s *Cloudformation) UpdateStack(updated *awsV1alpha1.SQSQueue) (output *clo
 	parameters = append(parameters, usedeadletterQueue)
 	parameters = append(parameters, visibilityTimeout)
 	parameters = append(parameters, fifoQueue)
+	parameters = append(parameters, queueName)
 
 	stackInputs.SetParameters(parameters)
 

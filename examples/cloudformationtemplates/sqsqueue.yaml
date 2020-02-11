@@ -82,6 +82,10 @@ data:
           - 'true'
           - 'false'
         Default: 'false'
+      QueueName:
+        Type: String
+        Description: >-
+          This is the resource version for the Kubernetes object.
     Conditions:
       CreateDeadLetterQueue: !Equals
         - !Ref UsedeadletterQueue
@@ -89,6 +93,8 @@ data:
       IsFifo: !Equals
         - !Ref FifoQueue
         - 'true'
+      HasName:
+        !Not [!Equals [!Ref QueueName, ""]]
     Resources:
       SQSQueue:
         Type: 'AWS::SQS::Queue'
@@ -112,6 +118,10 @@ data:
               maxReceiveCount: 5
             - !Ref 'AWS::NoValue'
           VisibilityTimeout: !Ref VisibilityTimeout
+          QueueName: !If
+            - HasName
+            - !Ref QueueName
+            - !Ref AWS::NoValue
       MyDeadLetterQueue:
         Condition: CreateDeadLetterQueue
         Type: 'AWS::SQS::Queue'

@@ -76,6 +76,12 @@ spec:
           Should this queue process messages in a first in first out manner
         structKey: FifoQueue
         templateKey: FifoQueue
+      - key: queueName
+        type: string
+        description: |
+          Name of queue.
+        structKey: QueueName
+        templateKey: QueueName
   output:
     schema:
       type: object

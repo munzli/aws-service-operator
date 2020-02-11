@@ -32,6 +32,7 @@ type SQSQueueSpec struct {
 	UsedeadletterQueue              bool   `json:"usedeadletterQueue"`
 	VisibilityTimeout               int    `json:"visibilityTimeout"`
 	FifoQueue                       bool   `json:"fifoQueue"`
+	QueueName                       string `json:"queueName"`
 }
 
 // SQSQueueOutput defines the output resource for SQSQueue
