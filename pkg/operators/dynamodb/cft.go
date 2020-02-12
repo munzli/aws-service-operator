@@ -80,7 +80,12 @@ func (s *Cloudformation) CreateStack() (output *cloudformation.CreateStackOutput
 	resourceVersion := helpers.CreateParam("ResourceVersion", s.DynamoDB.ResourceVersion)
 	namespace := helpers.CreateParam("Namespace", s.DynamoDB.Namespace)
 	clusterName := helpers.CreateParam("ClusterName", s.config.ClusterName)
-	tableName := helpers.CreateParam("TableName", helpers.Stringify(s.DynamoDB.Name))
+	tableNameTemp := "{{.Obj.Spec.TableName}}"
+	tableNameValue, err := helpers.Templatize(tableNameTemp, helpers.Data{Obj: s.DynamoDB, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	tableName := helpers.CreateParam("TableName", helpers.Stringify(tableNameValue))
 	rangeAttributenameTemp := "{{.Obj.Spec.RangeAttribute.Name}}"
 	rangeAttributenameValue, err := helpers.Templatize(rangeAttributenameTemp, helpers.Data{Obj: s.DynamoDB, Config: s.config, Helpers: helpers.New()})
 	if err != nil {
@@ -169,7 +174,12 @@ func (s *Cloudformation) UpdateStack(updated *awsV1alpha1.DynamoDB) (output *clo
 	resourceVersion := helpers.CreateParam("ResourceVersion", s.DynamoDB.ResourceVersion)
 	namespace := helpers.CreateParam("Namespace", s.DynamoDB.Namespace)
 	clusterName := helpers.CreateParam("ClusterName", s.config.ClusterName)
-	tableName := helpers.CreateParam("TableName", helpers.Stringify(s.DynamoDB.Name))
+	tableNameTemp := "{{.Obj.Spec.TableName}}"
+	tableNameValue, err := helpers.Templatize(tableNameTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	tableName := helpers.CreateParam("TableName", helpers.Stringify(tableNameValue))
 	rangeAttributenameTemp := "{{.Obj.Spec.RangeAttribute.Name}}"
 	rangeAttributenameValue, err := helpers.Templatize(rangeAttributenameTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
 	if err != nil {

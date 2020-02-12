@@ -23,7 +23,7 @@ spec:
       type: object
       properties:
       - key: tableName
-        type: resourceName
+        type: string
         description: |
           TableName is the name of the DynamoDB Table to be created.
         structKey: TableName

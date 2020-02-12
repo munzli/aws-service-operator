@@ -48,6 +48,7 @@ data:
           - S
           - N
           - B
+          - ""
         Default: "S"
         Description: AttributeType for the  Range key
       ReadCapacityUnits:
@@ -58,6 +59,9 @@ data:
         Type: String
         Description: Write Capacity Units
         Default: "5"
+    Conditions:
+      HasRangeAttribute:
+        !Not [!Equals [!Ref RangeAttributeName, ""]]
     Resources:
       DynamoDBTable:
         Type: "AWS::DynamoDB::Table"
@@ -67,16 +71,22 @@ data:
             -
               AttributeName: !Ref HashAttributeName
               KeyType: "HASH"
-            -
-              AttributeName: !Ref RangeAttributeName
-              KeyType: "RANGE"
+            - !If
+              - HasRangeAttribute
+              -
+                AttributeName: !Ref RangeAttributeName
+                KeyType: "RANGE"
+              - !Ref "AWS::NoValue"
           AttributeDefinitions:
             -
               AttributeName: !Ref HashAttributeName
-              AttributeType: "S"
-            -
-              AttributeName: !Ref RangeAttributeName
-              AttributeType: "S"
+              AttributeType: !Ref HashAttributeType
+            - !If
+              - HasRangeAttribute
+              -
+                AttributeName: !Ref RangeAttributeName
+                AttributeType: !Ref RangeAttributeType
+              - !Ref "AWS::NoValue"
           ProvisionedThroughput:
             ReadCapacityUnits: !Ref ReadCapacityUnits
             WriteCapacityUnits: !Ref WriteCapacityUnits

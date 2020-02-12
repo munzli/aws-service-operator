@@ -3,6 +3,7 @@ kind: DynamoDB
 metadata:
   name: example-table-name
 spec:
+  tableName: example_table_name
   hashAttribute:
     name: user_id
     type: S
