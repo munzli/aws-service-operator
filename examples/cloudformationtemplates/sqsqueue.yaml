@@ -120,7 +120,7 @@ data:
           VisibilityTimeout: !Ref VisibilityTimeout
           QueueName: !If
             - HasName
-            - !Ref QueueName
+            - !If [ IsFifo, !Join [ ".", [ !Ref QueueName, 'fifo' ] ], !Ref QueueName ]
             - !Ref AWS::NoValue
       MyDeadLetterQueue:
         Condition: CreateDeadLetterQueue
@@ -130,6 +130,10 @@ data:
             - IsFifo
             - 'true'
             - !Ref AWS::NoValue
+          QueueName: !Join
+            - ''
+            - - !Ref QueueName
+              - !If [ IsFifo, !Join [ ".", [ '_dlq', 'fifo' ] ], '_dlq' ]
     Outputs:
       QueueURL:
         Description: URL of newly created SQS Queue
