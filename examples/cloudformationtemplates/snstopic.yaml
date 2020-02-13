@@ -24,10 +24,18 @@ data:
         Description: >-
           This is the cluster name for the operator
         Type: String
+      TopicName:
+        Type: String
+        Description: >-
+          This is the name of the topic.
+    Conditions:
+      HasName:
+        !Not [!Equals [!Ref TopicName, ""]]
     Resources:
       SNSTopic:
-        Type: 'AWS::SNS::Topic'
-
+        Type: "AWS::SNS::Topic"
+        Properties:
+          TopicName: !If [ HasName, !Ref TopicName, !Ref "AWS::NoValue" ]
     Outputs:
       TopicARN:
         Value: !Ref SNSTopic

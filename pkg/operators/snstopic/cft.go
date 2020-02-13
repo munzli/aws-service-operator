@@ -80,12 +80,19 @@ func (s *Cloudformation) CreateStack() (output *cloudformation.CreateStackOutput
 	resourceVersion := helpers.CreateParam("ResourceVersion", s.SNSTopic.ResourceVersion)
 	namespace := helpers.CreateParam("Namespace", s.SNSTopic.Namespace)
 	clusterName := helpers.CreateParam("ClusterName", s.config.ClusterName)
+	topicNameTemp := "{{.Obj.Spec.TopicName}}"
+	topicNameValue, err := helpers.Templatize(topicNameTemp, helpers.Data{Obj: s.SNSTopic, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	topicName := helpers.CreateParam("TopicName", helpers.Stringify(topicNameValue))
 
 	parameters := []*cloudformation.Parameter{}
 	parameters = append(parameters, resourceName)
 	parameters = append(parameters, resourceVersion)
 	parameters = append(parameters, namespace)
 	parameters = append(parameters, clusterName)
+	parameters = append(parameters, topicName)
 
 	stackInputs.SetParameters(parameters)
 
@@ -125,12 +132,19 @@ func (s *Cloudformation) UpdateStack(updated *awsV1alpha1.SNSTopic) (output *clo
 	resourceVersion := helpers.CreateParam("ResourceVersion", s.SNSTopic.ResourceVersion)
 	namespace := helpers.CreateParam("Namespace", s.SNSTopic.Namespace)
 	clusterName := helpers.CreateParam("ClusterName", s.config.ClusterName)
+	topicNameTemp := "{{.Obj.Spec.TopicName}}"
+	topicNameValue, err := helpers.Templatize(topicNameTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	topicName := helpers.CreateParam("TopicName", helpers.Stringify(topicNameValue))
 
 	parameters := []*cloudformation.Parameter{}
 	parameters = append(parameters, resourceName)
 	parameters = append(parameters, resourceVersion)
 	parameters = append(parameters, namespace)
 	parameters = append(parameters, clusterName)
+	parameters = append(parameters, topicName)
 
 	stackInputs.SetParameters(parameters)
 

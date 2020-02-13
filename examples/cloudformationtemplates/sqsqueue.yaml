@@ -85,7 +85,7 @@ data:
       QueueName:
         Type: String
         Description: >-
-          This is the resource version for the Kubernetes object.
+          This is the name of the queue.
     Conditions:
       CreateDeadLetterQueue: !Equals
         - !Ref UsedeadletterQueue

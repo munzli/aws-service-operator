@@ -62,7 +62,6 @@ spec:
         templateKey: QueueURL
         templatized: true
         template: "{{(call .Helpers.GetSQSQueueByName .Config .Obj.Spec.Endpoint .Obj.Namespace).Output.QueueURL }}"
-
   output:
     schema:
       type: object

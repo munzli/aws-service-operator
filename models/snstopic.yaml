@@ -19,7 +19,12 @@ spec:
     schema:
       type: object
       properties:
-
+      - key: topicName
+        type: string
+        description: |
+          Name of topic.
+        structKey: TopicName
+        templateKey: TopicName
   output:
     schema:
       type: object

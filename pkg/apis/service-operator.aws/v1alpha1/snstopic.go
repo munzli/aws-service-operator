@@ -18,10 +18,13 @@ type SNSTopic struct {
 	Output              SNSTopicOutput              `json:"output"`
 	AdditionalResources SNSTopicAdditionalResources `json:"additionalResources"`
 }
+
+// SNSTopicSpec defines the Spec resource for SNSTopic
 type SNSTopicSpec struct {
 	CloudFormationTemplateName      string `json:"cloudFormationTemplateName"`
 	CloudFormationTemplateNamespace string `json:"cloudFormationTemplateNamespace"`
 	RollbackCount                   int    `json:"rollbackCount"`
+	TopicName                       string `json:"topicName"`
 }
 
 // SNSTopicOutput defines the output resource for SNSTopic
