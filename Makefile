@@ -40,3 +40,8 @@ codegen: aws-codegen k8s-codegen
 
 .PHONY: rebuild
 rebuild: codegen build
+
+.PHONY: helm-package
+helm-package:
+	helm package charts/aws-service-operator -d charts
+	helm repo index --merge charts/index.yaml charts
