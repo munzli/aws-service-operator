@@ -58,11 +58,14 @@ func getKubeconfig(masterURL, kubeconfig string) (*rest.Config, error) {
 }
 
 // CreateContext will create all the contexts for the informers
-func CreateContext(masterURL, kubeconfig string) (awsclient.ServiceoperatorV1alpha1Interface, kubernetes.Interface, *rest.Config, error) {
+func CreateContext(masterURL, kubeconfig string, noVerifySsl bool) (awsclient.ServiceoperatorV1alpha1Interface, kubernetes.Interface, *rest.Config, error) {
 	config, err := getKubeconfig(masterURL, kubeconfig)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to get k8s config. %+v", err)
 	}
+
+	// also skip ssl verification on other calls
+	config.TLSClientConfig = rest.TLSClientConfig { Insecure: noVerifySsl }
 
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {

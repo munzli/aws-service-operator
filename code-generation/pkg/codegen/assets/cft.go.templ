@@ -93,7 +93,7 @@ func (s *Cloudformation) CreateStack() (output *cloudformation.CreateStackOutput
 	if err != nil {
 		return output, err
 	}
-  {{$top.Key}}{{$nested.Key}} := helpers.CreateParam("{{$nested.TemplateKey}}", helpers.Stringify({{$top.Key}}{{$nested.Key}}Value))
+	{{$top.Key}}{{$nested.Key}} := helpers.CreateParam("{{$nested.TemplateKey}}", helpers.Stringify({{$top.Key}}{{$nested.Key}}Value))
 	{{- end}}
 	{{- else}}
 	{{- if (eq $top.Type "resourceName")}}

@@ -25,7 +25,7 @@ var (
 	// cfgFile, masterURL, kubeConfig, awsRegion all help support passed in flags into the server
 	cfgFile, masterURL, kubeconfig, awsRegion, logLevel, logFile, resources, clusterName, bucket, accountID, k8sNamespace string
 	defaultNamespace                                                                                                      string
-	noVerifySsl                                                                                                           bool
+	noVerifySsl, s3ForcePathStyle                                                                                         bool
 
 	// rootCmd represents the base command when called without any subcommands
 	rootCmd = &cobra.Command{
@@ -62,6 +62,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&k8sNamespace, "k8s-namespace", "", "", "Namespace to scope k8s API queries to. If left blank will default to all namespaces")
 	rootCmd.PersistentFlags().StringVarP(&defaultNamespace, "default-namespace", "", "default", "The default namespace in which to look for CloudFormation templates")
 	rootCmd.PersistentFlags().BoolVarP(&noVerifySsl, "no-verify-ssl", "", false, "Ignores insecure SSL certificates, this is used to skip SSL certificate validation.")
+	rootCmd.PersistentFlags().BoolVarP(&s3ForcePathStyle, "s3-force-path-style", "", false, "Forces path style addressing in S3 client.")
 
 	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 	viper.BindPFlag("masterurl", rootCmd.PersistentFlags().Lookup("master-url"))
@@ -75,6 +76,7 @@ func init() {
 	viper.BindPFlag("accountid", rootCmd.PersistentFlags().Lookup("account-id"))
 	viper.BindPFlag("defaultnamespace", rootCmd.PersistentFlags().Lookup("default-namespace"))
 	viper.BindPFlag("noverifyssl", rootCmd.PersistentFlags().Lookup("no-verify-ssl"))
+	viper.BindPFlag("s3forcepathstyle", rootCmd.PersistentFlags().Lookup("s3-force-path-style"))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -123,7 +125,7 @@ func getConfig() (c config.Config, err error) {
 		}
 	}
 
-	// possibility to skip ssl verify
+	// possibility to skip ssl verify and force path style s3 commands
 	transport := &http.Transport {
 		TLSClientConfig: &tls.Config{ InsecureSkipVerify: noVerifySsl },
 	}
@@ -132,6 +134,7 @@ func getConfig() (c config.Config, err error) {
 	awsConfig := &aws.Config {
 		HTTPClient: client,
 		Region: aws.String(awsRegion),
+		S3ForcePathStyle: &s3ForcePathStyle,
 	}
 
 	sess, err := session.NewSession(awsConfig)
@@ -139,12 +142,12 @@ func getConfig() (c config.Config, err error) {
 		return c, err
 	}
 
-	awsclientset, kubeclientset, restconfig, err := config.CreateContext(masterURL, kubeconfig)
+	awsclientset, kubeclientset, restconfig, err := config.CreateContext(masterURL, kubeconfig, noVerifySsl)
 	if err != nil {
 		return c, err
 	}
 
-	logger, err := logger.Configure(loggingConfig)
+	log, err := logger.Configure(loggingConfig)
 	if err != nil {
 		return c, err
 	}
@@ -158,14 +161,14 @@ func getConfig() (c config.Config, err error) {
 		Region:           awsRegion,
 		Kubeconfig:       kubeconfig,
 		MasterURL:        masterURL,
-		Logger:           logger,
+		Logger:           log,
 		Version:          goVersion.New(version, commit, date),
 		AWSSession:       sess,
 		LoggingConfig:    loggingConfig,
 		AWSClientset:     awsclientset,
 		KubeClientset:    kubeclientset,
 		RESTConfig:       restconfig,
-		Recorder:         config.CreateRecorder(logger, kubeclientset),
+		Recorder:         config.CreateRecorder(log, kubeclientset),
 		Resources:        resourcesMap,
 		ClusterName:      clusterName,
 		Bucket:           bucket,

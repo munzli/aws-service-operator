@@ -1,0 +1,57 @@
+{{ $name := include "localstack.name" . }}
+{{ $releaseName :=  .Release.Name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    app.kubernetes.io/name: {{ $name }}
+    helm.sh/chart: {{ include "localstack.chart" . }}
+    app.kubernetes.io/instance: {{ $releaseName }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: http
+      {{- if contains "NodePort" .Values.service.type }}
+      {{- if .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+      {{- end }}
+  {{- range $index, $val := .Values.localstack.services }}
+  {{- if $val.enabled }}
+    - name: {{ $val.name }}
+      protocol: TCP
+      port: {{ $val.externalPort }}
+      targetPort: {{ $val.internalPort }}
+      {{- if .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+  {{- end }}
+  {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ $name }}
+    app.kubernetes.io/instance: {{ $releaseName }}
+{{- range $index, $val := .Values.localstack.services }}
+{{- if $val.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $val.name }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: {{ $val.name }}
+      protocol: TCP
+      port: 443
+      targetPort: {{ $val.internalPort }}
+  selector:
+    app.kubernetes.io/name: {{ $name }}
+    app.kubernetes.io/instance: {{ $releaseName }}
+{{- end }}
+{{- end }}

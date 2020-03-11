@@ -25,7 +25,7 @@ affinity: {}
 ## Extra args to pass to aws-service-operator
 extraArgs:
   #- no-verify-ssl: true
-  #- help
+  #- s3-force-path-style: true
 
 ## A list of additional environment variables
 extraEnv:

@@ -3,4 +3,4 @@ kind: SNSTopic
 metadata:
   name: example-sns-topic-name
 spec:
-
+  topicName: example-sns-topic-name
