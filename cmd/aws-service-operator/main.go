@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 
@@ -23,6 +25,7 @@ var (
 	// cfgFile, masterURL, kubeConfig, awsRegion all help support passed in flags into the server
 	cfgFile, masterURL, kubeconfig, awsRegion, logLevel, logFile, resources, clusterName, bucket, accountID, k8sNamespace string
 	defaultNamespace                                                                                                      string
+	noVerifySsl                                                                                                           bool
 
 	// rootCmd represents the base command when called without any subcommands
 	rootCmd = &cobra.Command{
@@ -58,6 +61,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&accountID, "account-id", "a", "", "AWS Account ID, this is used to configure outputs and operate on the proper account.")
 	rootCmd.PersistentFlags().StringVarP(&k8sNamespace, "k8s-namespace", "", "", "Namespace to scope k8s API queries to. If left blank will default to all namespaces")
 	rootCmd.PersistentFlags().StringVarP(&defaultNamespace, "default-namespace", "", "default", "The default namespace in which to look for CloudFormation templates")
+	rootCmd.PersistentFlags().BoolVarP(&noVerifySsl, "no-verify-ssl", "", false, "Ignores insecure SSL certificates, this is used to skip SSL certificate validation.")
 
 	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 	viper.BindPFlag("masterurl", rootCmd.PersistentFlags().Lookup("master-url"))
@@ -70,6 +74,7 @@ func init() {
 	viper.BindPFlag("bucket", rootCmd.PersistentFlags().Lookup("bucket"))
 	viper.BindPFlag("accountid", rootCmd.PersistentFlags().Lookup("account-id"))
 	viper.BindPFlag("defaultnamespace", rootCmd.PersistentFlags().Lookup("default-namespace"))
+	viper.BindPFlag("noverifyssl", rootCmd.PersistentFlags().Lookup("no-verify-ssl"))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -118,7 +123,18 @@ func getConfig() (c config.Config, err error) {
 		}
 	}
 
-	sess, err := session.NewSession(&aws.Config{Region: aws.String(awsRegion)})
+	// possibility to skip ssl verify
+	transport := &http.Transport {
+		TLSClientConfig: &tls.Config{ InsecureSkipVerify: noVerifySsl },
+	}
+	client := &http.Client{ Transport: transport }
+
+	awsConfig := &aws.Config {
+		HTTPClient: client,
+		Region: aws.String(awsRegion),
+	}
+
+	sess, err := session.NewSession(awsConfig)
 	if err != nil {
 		return c, err
 	}
@@ -158,6 +174,7 @@ func getConfig() (c config.Config, err error) {
 		K8sNamespace:     k8sNamespace,
 		QueueURL:         queueURL,
 		QueueARN:         queueARN,
+		NoVerifySsl:      noVerifySsl,
 	}
 	return c, nil
 }

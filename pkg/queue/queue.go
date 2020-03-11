@@ -2,7 +2,9 @@ package queue
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
+	"net/http"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -57,9 +59,19 @@ func RegisterQueue(awsSession *session.Session, clusterName, name string) (queue
 // Subscribe will listen to the global queue and distribute messages
 func Subscribe(config config.Config, manager *queuemanager.QueueManager, ctx context.Context) {
 	logger := config.Logger
-	sess, err := session.NewSession(&aws.Config{
+
+	// possibility to skip ssl verify
+	transport := &http.Transport {
+		TLSClientConfig: &tls.Config{ InsecureSkipVerify: config.NoVerifySsl },
+	}
+	client := &http.Client{ Transport: transport }
+
+	awsConfig := &aws.Config {
+		HTTPClient: client,
 		Region: aws.String(config.Region),
-	})
+	}
+
+	sess, err := session.NewSession(awsConfig)
 	if err != nil {
 		logger.WithError(err).Error("error creating AWS session")
 		os.Exit(1)

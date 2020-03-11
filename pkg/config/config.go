@@ -39,6 +39,7 @@ type Config struct {
 	DefaultNamespace string
 	K8sNamespace     string
 	Recorder         record.EventRecorder
+	NoVerifySsl      bool
 }
 
 // LoggingConfig defines the attributes for the logger
