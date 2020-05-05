@@ -65,7 +65,7 @@ func CreateContext(masterURL, kubeconfig string, noVerifySsl bool) (awsclient.Se
 	}
 
 	// also skip ssl verification on other calls
-	config.TLSClientConfig = rest.TLSClientConfig { Insecure: noVerifySsl }
+	//config.TLSClientConfig = rest.TLSClientConfig { Insecure: noVerifySsl }
 
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
