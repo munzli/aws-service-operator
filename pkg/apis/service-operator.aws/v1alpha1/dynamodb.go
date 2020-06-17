@@ -31,16 +31,22 @@ type DynamoDBRangeAttribute struct {
 	Type string `json:"type"`
 }
 
+// DynamoDBSecondaryIndexAttribute defines the SecondaryIndexAttribute resource for DynamoDB
+type DynamoDBSecondaryIndexAttribute struct {
+	Name string `json:"name"`
+}
+
 // DynamoDBSpec defines the Spec resource for DynamoDB
 type DynamoDBSpec struct {
-	CloudFormationTemplateName      string                 `json:"cloudFormationTemplateName"`
-	CloudFormationTemplateNamespace string                 `json:"cloudFormationTemplateNamespace"`
-	RollbackCount                   int                    `json:"rollbackCount"`
-	TableName                       string                 `json:"tableName"`
-	RangeAttribute                  DynamoDBRangeAttribute `json:"rangeAttribute"`
-	ReadCapacityUnits               int                    `json:"readCapacityUnits"`
-	WriteCapacityUnits              int                    `json:"writeCapacityUnits"`
-	HashAttribute                   DynamoDBHashAttribute  `json:"hashAttribute"`
+	CloudFormationTemplateName      string                          `json:"cloudFormationTemplateName"`
+	CloudFormationTemplateNamespace string                          `json:"cloudFormationTemplateNamespace"`
+	RollbackCount                   int                             `json:"rollbackCount"`
+	TableName                       string                          `json:"tableName"`
+	RangeAttribute                  DynamoDBRangeAttribute          `json:"rangeAttribute"`
+	ReadCapacityUnits               int                             `json:"readCapacityUnits"`
+	WriteCapacityUnits              int                             `json:"writeCapacityUnits"`
+	HashAttribute                   DynamoDBHashAttribute           `json:"hashAttribute"`
+	SecondaryIndexAttribute         DynamoDBSecondaryIndexAttribute `json:"secondaryIndexAttribute"`
 }
 
 // DynamoDBOutput defines the output resource for DynamoDB

@@ -35,12 +35,16 @@ Parameters:
   RangeAttributeName:
     Type: String
     Description: Name of the Range key
+  SecondaryIndexAttributeName:
+    Type: String
+    Description: Name of the secondary index key
   RangeAttributeType:
     Type: String
     AllowedValues:
       - S
       - N
       - B
+      - ""
     Default: "S"
     Description: AttributeType for the  Range key
   ReadCapacityUnits:
@@ -51,6 +55,11 @@ Parameters:
     Type: String
     Description: Write Capacity Units
     Default: "5"
+Conditions:
+  HasRangeAttribute:
+    !Not [!Equals [!Ref RangeAttributeName, ""]]
+  HasSecondaryIndexAttribute:
+    !Not [!Equals [!Ref SecondaryIndexAttributeName, ""]]
 Resources:
   DynamoDBTable:
     Type: "AWS::DynamoDB::Table"
@@ -60,19 +69,41 @@ Resources:
         -
           AttributeName: !Ref HashAttributeName
           KeyType: "HASH"
-        -
-          AttributeName: !Ref RangeAttributeName
-          KeyType: "RANGE"
+        - !If
+          - HasRangeAttribute
+          -
+            AttributeName: !Ref RangeAttributeName
+            KeyType: "RANGE"
+          - !Ref "AWS::NoValue"
       AttributeDefinitions:
         -
           AttributeName: !Ref HashAttributeName
-          AttributeType: "S"
-        -
-          AttributeName: !Ref RangeAttributeName
-          AttributeType: "S"
+          AttributeType: !Ref HashAttributeType
+        - !If
+          - HasRangeAttribute
+          -
+            AttributeName: !Ref RangeAttributeName
+            AttributeType: !Ref RangeAttributeType
+          - !Ref "AWS::NoValue"
       ProvisionedThroughput:
         ReadCapacityUnits: !Ref ReadCapacityUnits
         WriteCapacityUnits: !Ref WriteCapacityUnits
+      GlobalSecondaryIndexes: !If
+        - HasSecondaryIndexAttribute
+        -
+          - IndexName: !Join
+                       - '-'
+                       - - !Ref SecondaryIndexAttributeName
+                         - 'index'
+            KeySchema:
+              - AttributeName: !Ref SecondaryIndexAttributeName
+                KeyType: "HASH"
+            Projection: 
+              ProjectionType: "ALL"
+            ProvisionedThroughput:
+              ReadCapacityUnits: !Ref ReadCapacityUnits
+              WriteCapacityUnits: !Ref WriteCapacityUnits
+        - !Ref "AWS::NoValue"
       Tags:
         - Key: Namespace
           Value: !Ref Namespace

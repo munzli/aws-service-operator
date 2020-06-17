@@ -12,3 +12,5 @@ spec:
     type: S
   readCapacityUnits: 5
   writeCapacityUnits: 5
+  secondaryIndexAttribute:
+    name: user_id

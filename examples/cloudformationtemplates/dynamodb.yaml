@@ -42,6 +42,9 @@ data:
       RangeAttributeName:
         Type: String
         Description: Name of the Range key
+      SecondaryIndexAttributeName:
+        Type: String
+        Description: Name of the secondary index key
       RangeAttributeType:
         Type: String
         AllowedValues:
@@ -62,6 +65,8 @@ data:
     Conditions:
       HasRangeAttribute:
         !Not [!Equals [!Ref RangeAttributeName, ""]]
+      HasSecondaryIndexAttribute:
+        !Not [!Equals [!Ref SecondaryIndexAttributeName, ""]]
     Resources:
       DynamoDBTable:
         Type: "AWS::DynamoDB::Table"
@@ -90,6 +95,22 @@ data:
           ProvisionedThroughput:
             ReadCapacityUnits: !Ref ReadCapacityUnits
             WriteCapacityUnits: !Ref WriteCapacityUnits
+          GlobalSecondaryIndexes: !If
+            - HasSecondaryIndexAttribute
+            -
+              - IndexName: !Join
+                           - '-'
+                           - - !Ref SecondaryIndexAttributeName
+                             - 'index'
+                KeySchema:
+                  - AttributeName: !Ref SecondaryIndexAttributeName
+                    KeyType: "HASH"
+                Projection: 
+                  ProjectionType: "ALL"
+                ProvisionedThroughput:
+                  ReadCapacityUnits: !Ref ReadCapacityUnits
+                  WriteCapacityUnits: !Ref WriteCapacityUnits
+            - !Ref "AWS::NoValue"
           Tags:
             - Key: Namespace
               Value: !Ref Namespace

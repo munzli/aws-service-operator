@@ -82,6 +82,19 @@ spec:
             Type is the kind of hash attribute that should be used.
           structKey: Type
           templateKey: HashAttributeType
+      - key: secondaryIndexAttribute
+        type: object
+        description: |
+          SecondaryIndexAttribute is the configuration for the secondary index attribute on the table.
+        structKey: SecondaryIndexAttribute
+        templateKey: SecondaryIndexAttribute
+        properties:
+        - key: name
+          type: string
+          description: |
+            Name is the name of the index attribute on the table.
+          structKey: Name
+          templateKey: SecondaryIndexAttributeName
   output:
     schema:
       type: object
