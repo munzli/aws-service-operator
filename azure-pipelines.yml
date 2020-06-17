@@ -12,7 +12,7 @@ steps:
       repository: 987795903169.dkr.ecr.eu-west-1.amazonaws.com/operators/aws-service-operator
       command: build
       Dockerfile: Dockerfile
-      tags: v0.0.1-alpha6
+      tags: v0.0.2
 
   - task: Bash@3
     displayName: 'AWS login (987795903169)'
@@ -35,5 +35,5 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        docker push 987795903169.dkr.ecr.eu-west-1.amazonaws.com/operators/aws-service-operator:v0.0.1-alpha6
+        docker push 987795903169.dkr.ecr.eu-west-1.amazonaws.com/operators/aws-service-operator:v0.0.2
       condition: succeeded()
