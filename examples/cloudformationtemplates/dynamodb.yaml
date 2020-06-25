@@ -92,6 +92,12 @@ data:
                 AttributeName: !Ref RangeAttributeName
                 AttributeType: !Ref RangeAttributeType
               - !Ref "AWS::NoValue"
+            - !If
+              - HasSecondaryIndexAttribute
+              -
+                AttributeName: !Ref SecondaryIndexAttributeName
+                AttributeType: "S"
+              - !Ref "AWS::NoValue"
           ProvisionedThroughput:
             ReadCapacityUnits: !Ref ReadCapacityUnits
             WriteCapacityUnits: !Ref WriteCapacityUnits

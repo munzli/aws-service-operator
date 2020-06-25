@@ -13,4 +13,4 @@ spec:
   readCapacityUnits: 5
   writeCapacityUnits: 5
   secondaryIndexAttribute:
-    name: user_id
+    name: modified_at
