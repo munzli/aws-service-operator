@@ -34,11 +34,13 @@ type DynamoDBRangeAttribute struct {
 // DynamoDBSecondaryHashAttribute defines the SecondaryHashAttribute resource for DynamoDB
 type DynamoDBSecondaryHashAttribute struct {
 	Name string `json:"name"`
+	Type string `json:"type"`
 }
 
 // DynamoDBSecondaryRangeAttribute defines the SecondaryRangeAttribute resource for DynamoDB
 type DynamoDBSecondaryRangeAttribute struct {
 	Name string `json:"name"`
+	Type string `json:"type"`
 }
 
 // DynamoDBSpec defines the Spec resource for DynamoDB

@@ -134,12 +134,24 @@ func (s *Cloudformation) CreateStack() (output *cloudformation.CreateStackOutput
 		return output, err
 	}
 	secondaryHashAttributename := helpers.CreateParam("SecondaryHashAttributeName", helpers.Stringify(secondaryHashAttributenameValue))
+	secondaryHashAttributetypeTemp := "{{.Obj.Spec.SecondaryHashAttribute.Type}}"
+	secondaryHashAttributetypeValue, err := helpers.Templatize(secondaryHashAttributetypeTemp, helpers.Data{Obj: s.DynamoDB, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	secondaryHashAttributetype := helpers.CreateParam("SecondaryHashAttributeType", helpers.Stringify(secondaryHashAttributetypeValue))
 	secondaryRangeAttributenameTemp := "{{.Obj.Spec.SecondaryRangeAttribute.Name}}"
 	secondaryRangeAttributenameValue, err := helpers.Templatize(secondaryRangeAttributenameTemp, helpers.Data{Obj: s.DynamoDB, Config: s.config, Helpers: helpers.New()})
 	if err != nil {
 		return output, err
 	}
 	secondaryRangeAttributename := helpers.CreateParam("SecondaryRangeAttributeName", helpers.Stringify(secondaryRangeAttributenameValue))
+	secondaryRangeAttributetypeTemp := "{{.Obj.Spec.SecondaryRangeAttribute.Type}}"
+	secondaryRangeAttributetypeValue, err := helpers.Templatize(secondaryRangeAttributetypeTemp, helpers.Data{Obj: s.DynamoDB, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	secondaryRangeAttributetype := helpers.CreateParam("SecondaryRangeAttributeType", helpers.Stringify(secondaryRangeAttributetypeValue))
 
 	parameters := []*cloudformation.Parameter{}
 	parameters = append(parameters, resourceName)
@@ -155,7 +167,9 @@ func (s *Cloudformation) CreateStack() (output *cloudformation.CreateStackOutput
 	parameters = append(parameters, hashAttributetype)
 	parameters = append(parameters, secondaryIndexName)
 	parameters = append(parameters, secondaryHashAttributename)
+	parameters = append(parameters, secondaryHashAttributetype)
 	parameters = append(parameters, secondaryRangeAttributename)
+	parameters = append(parameters, secondaryRangeAttributetype)
 
 	stackInputs.SetParameters(parameters)
 
@@ -249,12 +263,24 @@ func (s *Cloudformation) UpdateStack(updated *awsV1alpha1.DynamoDB) (output *clo
 		return output, err
 	}
 	secondaryHashAttributename := helpers.CreateParam("SecondaryHashAttributeName", helpers.Stringify(secondaryHashAttributenameValue))
+	secondaryHashAttributetypeTemp := "{{.Obj.Spec.SecondaryHashAttribute.Type}}"
+	secondaryHashAttributetypeValue, err := helpers.Templatize(secondaryHashAttributetypeTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	secondaryHashAttributetype := helpers.CreateParam("SecondaryHashAttributeType", helpers.Stringify(secondaryHashAttributetypeValue))
 	secondaryRangeAttributenameTemp := "{{.Obj.Spec.SecondaryRangeAttribute.Name}}"
 	secondaryRangeAttributenameValue, err := helpers.Templatize(secondaryRangeAttributenameTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
 	if err != nil {
 		return output, err
 	}
 	secondaryRangeAttributename := helpers.CreateParam("SecondaryRangeAttributeName", helpers.Stringify(secondaryRangeAttributenameValue))
+	secondaryRangeAttributetypeTemp := "{{.Obj.Spec.SecondaryRangeAttribute.Type}}"
+	secondaryRangeAttributetypeValue, err := helpers.Templatize(secondaryRangeAttributetypeTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	secondaryRangeAttributetype := helpers.CreateParam("SecondaryRangeAttributeType", helpers.Stringify(secondaryRangeAttributetypeValue))
 
 	parameters := []*cloudformation.Parameter{}
 	parameters = append(parameters, resourceName)
@@ -270,7 +296,9 @@ func (s *Cloudformation) UpdateStack(updated *awsV1alpha1.DynamoDB) (output *clo
 	parameters = append(parameters, hashAttributetype)
 	parameters = append(parameters, secondaryIndexName)
 	parameters = append(parameters, secondaryHashAttributename)
+	parameters = append(parameters, secondaryHashAttributetype)
 	parameters = append(parameters, secondaryRangeAttributename)
+	parameters = append(parameters, secondaryRangeAttributetype)
 
 	stackInputs.SetParameters(parameters)
 

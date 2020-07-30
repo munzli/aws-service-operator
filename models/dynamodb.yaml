@@ -101,6 +101,13 @@ spec:
             Name is the name of the index attribute on the table.
           structKey: Name
           templateKey: SecondaryHashAttributeName
+        - key: type
+          type: string
+          default: "S"
+          description: |
+            Type is the kind of hash attribute that should be used.
+          structKey: Type
+          templateKey: SecondaryHashAttributeType
       - key: secondaryRangeAttribute
         type: object
         description: |
@@ -108,12 +115,19 @@ spec:
         structKey: SecondaryRangeAttribute
         templateKey: SecondaryRangeAttribute
         properties:
-          - key: name
-            type: string
-            description: |
-              Name is the name of the index attribute on the table.
-            structKey: Name
-            templateKey: SecondaryRangeAttributeName
+        - key: name
+          type: string
+          description: |
+            Name is the name of the index attribute on the table.
+          structKey: Name
+          templateKey: SecondaryRangeAttributeName
+        - key: type
+          type: string
+          default: "S"
+          description: |
+            Type is the kind of range attribute that should be used.
+          structKey: Type
+          templateKey: SecondaryRangeAttributeType
   output:
     schema:
       type: object
