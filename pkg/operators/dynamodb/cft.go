@@ -122,12 +122,24 @@ func (s *Cloudformation) CreateStack() (output *cloudformation.CreateStackOutput
 		return output, err
 	}
 	hashAttributetype := helpers.CreateParam("HashAttributeType", helpers.Stringify(hashAttributetypeValue))
-	secondaryIndexAttributenameTemp := "{{.Obj.Spec.SecondaryIndexAttribute.Name}}"
-	secondaryIndexAttributenameValue, err := helpers.Templatize(secondaryIndexAttributenameTemp, helpers.Data{Obj: s.DynamoDB, Config: s.config, Helpers: helpers.New()})
+	secondaryIndexNameTemp := "{{.Obj.Spec.SecondaryIndexName}}"
+	secondaryIndexNameValue, err := helpers.Templatize(secondaryIndexNameTemp, helpers.Data{Obj: s.DynamoDB, Config: s.config, Helpers: helpers.New()})
 	if err != nil {
 		return output, err
 	}
-	secondaryIndexAttributename := helpers.CreateParam("SecondaryIndexAttributeName", helpers.Stringify(secondaryIndexAttributenameValue))
+	secondaryIndexName := helpers.CreateParam("SecondaryIndexName", helpers.Stringify(secondaryIndexNameValue))
+	secondaryHashAttributenameTemp := "{{.Obj.Spec.SecondaryHashAttribute.Name}}"
+	secondaryHashAttributenameValue, err := helpers.Templatize(secondaryHashAttributenameTemp, helpers.Data{Obj: s.DynamoDB, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	secondaryHashAttributename := helpers.CreateParam("SecondaryHashAttributeName", helpers.Stringify(secondaryHashAttributenameValue))
+	secondaryRangeAttributenameTemp := "{{.Obj.Spec.SecondaryRangeAttribute.Name}}"
+	secondaryRangeAttributenameValue, err := helpers.Templatize(secondaryRangeAttributenameTemp, helpers.Data{Obj: s.DynamoDB, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	secondaryRangeAttributename := helpers.CreateParam("SecondaryRangeAttributeName", helpers.Stringify(secondaryRangeAttributenameValue))
 
 	parameters := []*cloudformation.Parameter{}
 	parameters = append(parameters, resourceName)
@@ -141,7 +153,9 @@ func (s *Cloudformation) CreateStack() (output *cloudformation.CreateStackOutput
 	parameters = append(parameters, writeCapacityUnits)
 	parameters = append(parameters, hashAttributename)
 	parameters = append(parameters, hashAttributetype)
-	parameters = append(parameters, secondaryIndexAttributename)
+	parameters = append(parameters, secondaryIndexName)
+	parameters = append(parameters, secondaryHashAttributename)
+	parameters = append(parameters, secondaryRangeAttributename)
 
 	stackInputs.SetParameters(parameters)
 
@@ -223,12 +237,24 @@ func (s *Cloudformation) UpdateStack(updated *awsV1alpha1.DynamoDB) (output *clo
 		return output, err
 	}
 	hashAttributetype := helpers.CreateParam("HashAttributeType", helpers.Stringify(hashAttributetypeValue))
-	secondaryIndexAttributenameTemp := "{{.Obj.Spec.SecondaryIndexAttribute.Name}}"
-	secondaryIndexAttributenameValue, err := helpers.Templatize(secondaryIndexAttributenameTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
+	secondaryIndexNameTemp := "{{.Obj.Spec.SecondaryIndexName}}"
+	secondaryIndexNameValue, err := helpers.Templatize(secondaryIndexNameTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
 	if err != nil {
 		return output, err
 	}
-	secondaryIndexAttributename := helpers.CreateParam("SecondaryIndexAttributeName", helpers.Stringify(secondaryIndexAttributenameValue))
+	secondaryIndexName := helpers.CreateParam("SecondaryIndexName", helpers.Stringify(secondaryIndexNameValue))
+	secondaryHashAttributenameTemp := "{{.Obj.Spec.SecondaryHashAttribute.Name}}"
+	secondaryHashAttributenameValue, err := helpers.Templatize(secondaryHashAttributenameTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	secondaryHashAttributename := helpers.CreateParam("SecondaryHashAttributeName", helpers.Stringify(secondaryHashAttributenameValue))
+	secondaryRangeAttributenameTemp := "{{.Obj.Spec.SecondaryRangeAttribute.Name}}"
+	secondaryRangeAttributenameValue, err := helpers.Templatize(secondaryRangeAttributenameTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	secondaryRangeAttributename := helpers.CreateParam("SecondaryRangeAttributeName", helpers.Stringify(secondaryRangeAttributenameValue))
 
 	parameters := []*cloudformation.Parameter{}
 	parameters = append(parameters, resourceName)
@@ -242,7 +268,9 @@ func (s *Cloudformation) UpdateStack(updated *awsV1alpha1.DynamoDB) (output *clo
 	parameters = append(parameters, writeCapacityUnits)
 	parameters = append(parameters, hashAttributename)
 	parameters = append(parameters, hashAttributetype)
-	parameters = append(parameters, secondaryIndexAttributename)
+	parameters = append(parameters, secondaryIndexName)
+	parameters = append(parameters, secondaryHashAttributename)
+	parameters = append(parameters, secondaryRangeAttributename)
 
 	stackInputs.SetParameters(parameters)
 

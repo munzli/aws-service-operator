@@ -38,13 +38,10 @@ data:
           - N
           - B
         Default: "S"
-        Description: AttributeType for  Hash key
+        Description: AttributeType for Hash key
       RangeAttributeName:
         Type: String
         Description: Name of the Range key
-      SecondaryIndexAttributeName:
-        Type: String
-        Description: Name of the secondary index key
       RangeAttributeType:
         Type: String
         AllowedValues:
@@ -53,7 +50,35 @@ data:
           - B
           - ""
         Default: "S"
-        Description: AttributeType for the  Range key
+        Description: AttributeType for the Range key
+      SecondaryIndexName:
+        Description: >-
+          Must contain only lowercase letters, numbers and hyphens.
+        Type: String
+      SecondaryHashAttributeName:
+        Type: String
+        Description: Name of the secondary hash key
+      SecondaryHashAttributeType:
+        Type: String
+        AllowedValues:
+          - S
+          - N
+          - B
+          - ""
+        Default: "S"
+        Description: AttributeType for the secondary index key
+      SecondaryRangeAttributeName:
+        Type: String
+        Description: Name of the secondary range key
+      SecondaryRangeAttributeType:
+        Type: String
+        AllowedValues:
+          - S
+          - N
+          - B
+          - ""
+        Default: "S"
+        Description: AttributeType for the secondary range key
       ReadCapacityUnits:
         Type: String
         Description: Read ReadCapacity Units
@@ -65,8 +90,20 @@ data:
     Conditions:
       HasRangeAttribute:
         !Not [!Equals [!Ref RangeAttributeName, ""]]
-      HasSecondaryIndexAttribute:
-        !Not [!Equals [!Ref SecondaryIndexAttributeName, ""]]
+      HasSecondaryHashAttribute:
+        !Not [!Equals [!Ref SecondaryHashAttributeName, ""]]
+      HasSecondaryRangeAttribute:
+        !Not [!Equals [!Ref SecondaryRangeAttributeName, ""]]
+      HasSecondaryIndexName:
+        !Not [!Equals [!Ref SecondaryIndexName, ""]]
+      CreateSecondaryHashAttribute: !And
+        - !Not [!Equals [!Ref SecondaryHashAttributeName, !Ref HashAttributeName]]
+        - !Not [!Equals [!Ref SecondaryHashAttributeName, !Ref RangeAttributeName]]
+        - !Condition HasSecondaryHashAttribute
+      CreateSecondaryRangeAttribute: !And
+        - !Not [!Equals [!Ref SecondaryRangeAttributeName, !Ref HashAttributeName]]
+        - !Not [!Equals [!Ref SecondaryRangeAttributeName, !Ref RangeAttributeName]]
+        - !Condition HasSecondaryRangeAttribute
     Resources:
       DynamoDBTable:
         Type: "AWS::DynamoDB::Table"
@@ -93,24 +130,40 @@ data:
                 AttributeType: !Ref RangeAttributeType
               - !Ref "AWS::NoValue"
             - !If
-              - HasSecondaryIndexAttribute
+              - CreateSecondaryHashAttribute
               -
-                AttributeName: !Ref SecondaryIndexAttributeName
-                AttributeType: "S"
+                AttributeName: !Ref SecondaryHashAttributeName
+                AttributeType: !Ref SecondaryHashAttributeType
+              - !Ref "AWS::NoValue"
+            - !If
+              - CreateSecondaryRangeAttribute
+              -
+                AttributeName: !Ref SecondaryRangeAttributeName
+                AttributeType: !Ref SecondaryRangeAttributeType
               - !Ref "AWS::NoValue"
           ProvisionedThroughput:
             ReadCapacityUnits: !Ref ReadCapacityUnits
             WriteCapacityUnits: !Ref WriteCapacityUnits
           GlobalSecondaryIndexes: !If
-            - HasSecondaryIndexAttribute
+            - HasSecondaryHashAttribute
             -
-              - IndexName: !Join
-                           - '-'
-                           - - !Ref SecondaryIndexAttributeName
-                             - 'index'
+              - IndexName: !If
+                - HasSecondaryIndexName
+                - !Ref SecondaryIndexName
+                - !Join
+                 - '-'
+                 - - !Ref SecondaryHashAttributeName
+                   - 'index'
                 KeySchema:
-                  - AttributeName: !Ref SecondaryIndexAttributeName
+                  -
+                    AttributeName: !Ref SecondaryHashAttributeName
                     KeyType: "HASH"
+                  - !If
+                    - HasSecondaryRangeAttribute
+                    -
+                      AttributeName: !Ref SecondaryRangeAttributeName
+                      KeyType: "RANGE"
+                    - !Ref "AWS::NoValue"
                 Projection: 
                   ProjectionType: "ALL"
                 ProvisionedThroughput:

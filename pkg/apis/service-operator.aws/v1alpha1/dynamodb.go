@@ -31,8 +31,13 @@ type DynamoDBRangeAttribute struct {
 	Type string `json:"type"`
 }
 
-// DynamoDBSecondaryIndexAttribute defines the SecondaryIndexAttribute resource for DynamoDB
-type DynamoDBSecondaryIndexAttribute struct {
+// DynamoDBSecondaryHashAttribute defines the SecondaryHashAttribute resource for DynamoDB
+type DynamoDBSecondaryHashAttribute struct {
+	Name string `json:"name"`
+}
+
+// DynamoDBSecondaryRangeAttribute defines the SecondaryRangeAttribute resource for DynamoDB
+type DynamoDBSecondaryRangeAttribute struct {
 	Name string `json:"name"`
 }
 
@@ -46,7 +51,9 @@ type DynamoDBSpec struct {
 	ReadCapacityUnits               int                             `json:"readCapacityUnits"`
 	WriteCapacityUnits              int                             `json:"writeCapacityUnits"`
 	HashAttribute                   DynamoDBHashAttribute           `json:"hashAttribute"`
-	SecondaryIndexAttribute         DynamoDBSecondaryIndexAttribute `json:"secondaryIndexAttribute"`
+	SecondaryIndexName              string                          `json:"secondaryIndexName"`
+	SecondaryHashAttribute          DynamoDBSecondaryHashAttribute  `json:"secondaryHashAttribute"`
+	SecondaryRangeAttribute         DynamoDBSecondaryRangeAttribute `json:"secondaryRangeAttribute"`
 }
 
 // DynamoDBOutput defines the output resource for DynamoDB
