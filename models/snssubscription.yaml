@@ -25,16 +25,16 @@ spec:
           This defines the Name of the topic which translates to an ARN
         structKey: TopicName
         templateKey: TopicARN
-      # - key: rawMessageDelivery
-      #   type: bool
-      #   description: |
-      #     true if raw message delivery is enabled for the subscription. Raw
-      #     messages are free of JSON formatting and can be sent to HTTP/S and
-      #     Amazon SQS endpoints. For more information, see
-      #     GetSubscriptionAttributes in the Amazon Simple Notification Service
-      #     API Reference.
-      #   structKey: RawMessageDelivery
-      #   templateKey: RawMessageDelivery
+      - key: rawMessageDelivery
+        type: bool
+        description: |
+          true if raw message delivery is enabled for the subscription. Raw
+          messages are free of JSON formatting and can be sent to HTTP/S and
+          Amazon SQS endpoints. For more information, see
+          GetSubscriptionAttributes in the Amazon Simple Notification Service
+          API Reference.
+        structKey: RawMessageDelivery
+        templateKey: RawMessageDelivery
       - key: protocol
         type: string
         description: |
@@ -62,6 +62,12 @@ spec:
         templateKey: QueueURL
         templatized: true
         template: "{{(call .Helpers.GetSQSQueueByName .Config .Obj.Spec.Endpoint .Obj.Namespace).Output.QueueURL }}"
+      - key: filterPolicy
+        type: string
+        description: |
+          The subscription's filter policy as JSON string.
+        structKey: FilterPolicy
+        templateKey: FilterPolicy
   output:
     schema:
       type: object

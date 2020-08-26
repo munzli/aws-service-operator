@@ -40,6 +40,18 @@ data:
         Type: String
         Description: >-
           What is the SQS Queue URL?
+      RawMessageDelivery:
+        Type: String
+        Description: >-
+          If true subscription will use raw message delivery
+        AllowedValues:
+          - 'true'
+          - 'false'
+        Default: 'true'
+      FilterPolicy:
+        Type: String
+        Description: >-
+          JSON string of filter policy to apply
 
     Conditions:
       UseSQS: !Equals [!Ref Protocol, "sqs"]
@@ -52,6 +64,8 @@ data:
           Protocol: !Ref Protocol
           TopicArn: !Ref TopicARN
           Region: !Ref "AWS::Region"
+          RawMessageDelivery: !Ref RawMessageDelivery
+          FilterPolicy: !Ref FilterPolicy
 
       SQSQueuePolicy:
         Type: 'AWS::SQS::QueuePolicy'

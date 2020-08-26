@@ -25,9 +25,11 @@ type SNSSubscriptionSpec struct {
 	CloudFormationTemplateNamespace string `json:"cloudFormationTemplateNamespace"`
 	RollbackCount                   int    `json:"rollbackCount"`
 	TopicName                       string `json:"topicName"`
+	RawMessageDelivery              bool   `json:"rawMessageDelivery"`
 	Protocol                        string `json:"protocol"`
 	Endpoint                        string `json:"endpoint"`
 	QueueURL                        string `json:"queueURL"`
+	FilterPolicy                    string `json:"filterPolicy"`
 }
 
 // SNSSubscriptionOutput defines the output resource for SNSSubscription

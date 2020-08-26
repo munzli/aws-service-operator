@@ -86,6 +86,12 @@ func (s *Cloudformation) CreateStack() (output *cloudformation.CreateStackOutput
 		return output, err
 	}
 	topicName := helpers.CreateParam("TopicARN", helpers.Stringify(topicNameValue))
+	rawMessageDeliveryTemp := "{{.Obj.Spec.RawMessageDelivery}}"
+	rawMessageDeliveryValue, err := helpers.Templatize(rawMessageDeliveryTemp, helpers.Data{Obj: s.SNSSubscription, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	rawMessageDelivery := helpers.CreateParam("RawMessageDelivery", helpers.Stringify(rawMessageDeliveryValue))
 	protocolTemp := "{{.Obj.Spec.Protocol}}"
 	protocolValue, err := helpers.Templatize(protocolTemp, helpers.Data{Obj: s.SNSSubscription, Config: s.config, Helpers: helpers.New()})
 	if err != nil {
@@ -104,6 +110,12 @@ func (s *Cloudformation) CreateStack() (output *cloudformation.CreateStackOutput
 		return output, err
 	}
 	queueURL := helpers.CreateParam("QueueURL", helpers.Stringify(queueURLValue))
+	filterPolicyTemp := "{{.Obj.Spec.FilterPolicy}}"
+	filterPolicyValue, err := helpers.Templatize(filterPolicyTemp, helpers.Data{Obj: s.SNSSubscription, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	filterPolicy := helpers.CreateParam("FilterPolicy", helpers.Stringify(filterPolicyValue))
 
 	parameters := []*cloudformation.Parameter{}
 	parameters = append(parameters, resourceName)
@@ -111,9 +123,11 @@ func (s *Cloudformation) CreateStack() (output *cloudformation.CreateStackOutput
 	parameters = append(parameters, namespace)
 	parameters = append(parameters, clusterName)
 	parameters = append(parameters, topicName)
+	parameters = append(parameters, rawMessageDelivery)
 	parameters = append(parameters, protocol)
 	parameters = append(parameters, endpoint)
 	parameters = append(parameters, queueURL)
+	parameters = append(parameters, filterPolicy)
 
 	stackInputs.SetParameters(parameters)
 
@@ -159,6 +173,12 @@ func (s *Cloudformation) UpdateStack(updated *awsV1alpha1.SNSSubscription) (outp
 		return output, err
 	}
 	topicName := helpers.CreateParam("TopicARN", helpers.Stringify(topicNameValue))
+	rawMessageDeliveryTemp := "{{.Obj.Spec.RawMessageDelivery}}"
+	rawMessageDeliveryValue, err := helpers.Templatize(rawMessageDeliveryTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	rawMessageDelivery := helpers.CreateParam("RawMessageDelivery", helpers.Stringify(rawMessageDeliveryValue))
 	protocolTemp := "{{.Obj.Spec.Protocol}}"
 	protocolValue, err := helpers.Templatize(protocolTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
 	if err != nil {
@@ -177,6 +197,12 @@ func (s *Cloudformation) UpdateStack(updated *awsV1alpha1.SNSSubscription) (outp
 		return output, err
 	}
 	queueURL := helpers.CreateParam("QueueURL", helpers.Stringify(queueURLValue))
+	filterPolicyTemp := "{{.Obj.Spec.FilterPolicy}}"
+	filterPolicyValue, err := helpers.Templatize(filterPolicyTemp, helpers.Data{Obj: updated, Config: s.config, Helpers: helpers.New()})
+	if err != nil {
+		return output, err
+	}
+	filterPolicy := helpers.CreateParam("FilterPolicy", helpers.Stringify(filterPolicyValue))
 
 	parameters := []*cloudformation.Parameter{}
 	parameters = append(parameters, resourceName)
@@ -184,9 +210,11 @@ func (s *Cloudformation) UpdateStack(updated *awsV1alpha1.SNSSubscription) (outp
 	parameters = append(parameters, namespace)
 	parameters = append(parameters, clusterName)
 	parameters = append(parameters, topicName)
+	parameters = append(parameters, rawMessageDelivery)
 	parameters = append(parameters, protocol)
 	parameters = append(parameters, endpoint)
 	parameters = append(parameters, queueURL)
+	parameters = append(parameters, filterPolicy)
 
 	stackInputs.SetParameters(parameters)
 

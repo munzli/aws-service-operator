@@ -9,19 +9,20 @@ steps:
   - task: Docker@2
     displayName: 'Build image'
     inputs:
-      repository: 987795903169.dkr.ecr.eu-west-1.amazonaws.com/operators/aws-service-operator
+      repository: $(AWS_ACCOUNT_ID).dkr.ecr.eu-west-1.amazonaws.com/operators/aws-service-operator
       command: build
       Dockerfile: Dockerfile
-      tags: v0.0.3
+      # hardcoded version
+      tags: v0.0.4
 
   - task: Bash@3
-    displayName: 'AWS login (987795903169)'
+    displayName: 'AWS login'
     inputs:
       targetType: 'inline'
       script: |
         export AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY)
         temp_role=$(aws sts assume-role \
-                            --role-arn "arn:aws:iam::987795903169:role/ECRPowerUser" \
+                            --role-arn "arn:aws:iam::$(AWS_ACCOUNT_ID):role/ECRPowerUser" \
                             --role-session-name "ecr")
 
         export AWS_ACCESS_KEY_ID=$(echo $temp_role | jq -r .Credentials.AccessKeyId)
@@ -35,5 +36,5 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        docker push 987795903169.dkr.ecr.eu-west-1.amazonaws.com/operators/aws-service-operator:v0.0.3
+        docker push $(AWS_ACCOUNT_ID).dkr.ecr.eu-west-1.amazonaws.com/operators/aws-service-operator:v0.0.4
       condition: succeeded()

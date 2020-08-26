@@ -6,3 +6,5 @@ spec:
   topicName: example-sns-topic-name
   protocol: sqs
   endpoint: example-sqs-queue-name
+  rawMessageDelivery: true
+  filterPolicy: "{ \"abilityProperty\": [ \"scheduling:schedule_state\", \"humidity:humidity\" ] }"
