@@ -104,6 +104,9 @@ data:
         - !Not [!Equals [!Ref SecondaryRangeAttributeName, !Ref HashAttributeName]]
         - !Not [!Equals [!Ref SecondaryRangeAttributeName, !Ref RangeAttributeName]]
         - !Condition HasSecondaryRangeAttribute
+      NotOnDemandBilling: !And
+        - !Not [!Equals [!Ref ReadCapacityUnits, "0"]]
+        - !Not [!Equals [!Ref WriteCapacityUnits, "0"]]
     Resources:
       DynamoDBTable:
         Type: "AWS::DynamoDB::Table"
@@ -144,6 +147,7 @@ data:
           ProvisionedThroughput:
             ReadCapacityUnits: !Ref ReadCapacityUnits
             WriteCapacityUnits: !Ref WriteCapacityUnits
+          BillingMode: !If [NotOnDemandBilling, 'PROVISIONED', 'PAY_PER_REQUEST']
           GlobalSecondaryIndexes: !If
             - HasSecondaryHashAttribute
             -
@@ -164,7 +168,7 @@ data:
                       AttributeName: !Ref SecondaryRangeAttributeName
                       KeyType: "RANGE"
                     - !Ref "AWS::NoValue"
-                Projection: 
+                Projection:
                   ProjectionType: "ALL"
                 ProvisionedThroughput:
                   ReadCapacityUnits: !Ref ReadCapacityUnits

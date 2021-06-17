@@ -31,13 +31,10 @@ Parameters:
       - N
       - B
     Default: "S"
-    Description: AttributeType for  Hash key
+    Description: AttributeType for Hash key
   RangeAttributeName:
     Type: String
     Description: Name of the Range key
-  SecondaryIndexAttributeName:
-    Type: String
-    Description: Name of the secondary index key
   RangeAttributeType:
     Type: String
     AllowedValues:
@@ -46,7 +43,35 @@ Parameters:
       - B
       - ""
     Default: "S"
-    Description: AttributeType for the  Range key
+    Description: AttributeType for the Range key
+  SecondaryIndexName:
+    Description: >-
+      Must contain only lowercase letters, numbers and hyphens.
+    Type: String
+  SecondaryHashAttributeName:
+    Type: String
+    Description: Name of the secondary hash key
+  SecondaryHashAttributeType:
+    Type: String
+    AllowedValues:
+      - S
+      - N
+      - B
+      - ""
+    Default: "S"
+    Description: AttributeType for the secondary index key
+  SecondaryRangeAttributeName:
+    Type: String
+    Description: Name of the secondary range key
+  SecondaryRangeAttributeType:
+    Type: String
+    AllowedValues:
+      - S
+      - N
+      - B
+      - ""
+    Default: "S"
+    Description: AttributeType for the secondary range key
   ReadCapacityUnits:
     Type: String
     Description: Read ReadCapacity Units
@@ -58,8 +83,23 @@ Parameters:
 Conditions:
   HasRangeAttribute:
     !Not [!Equals [!Ref RangeAttributeName, ""]]
-  HasSecondaryIndexAttribute:
-    !Not [!Equals [!Ref SecondaryIndexAttributeName, ""]]
+  HasSecondaryHashAttribute:
+    !Not [!Equals [!Ref SecondaryHashAttributeName, ""]]
+  HasSecondaryRangeAttribute:
+    !Not [!Equals [!Ref SecondaryRangeAttributeName, ""]]
+  HasSecondaryIndexName:
+    !Not [!Equals [!Ref SecondaryIndexName, ""]]
+  CreateSecondaryHashAttribute: !And
+    - !Not [!Equals [!Ref SecondaryHashAttributeName, !Ref HashAttributeName]]
+    - !Not [!Equals [!Ref SecondaryHashAttributeName, !Ref RangeAttributeName]]
+    - !Condition HasSecondaryHashAttribute
+  CreateSecondaryRangeAttribute: !And
+    - !Not [!Equals [!Ref SecondaryRangeAttributeName, !Ref HashAttributeName]]
+    - !Not [!Equals [!Ref SecondaryRangeAttributeName, !Ref RangeAttributeName]]
+    - !Condition HasSecondaryRangeAttribute
+  NotOnDemandBilling: !And
+    - !Not [!Equals [!Ref ReadCapacityUnits, "0"]]
+    - !Not [!Equals [!Ref WriteCapacityUnits, "0"]]
 Resources:
   DynamoDBTable:
     Type: "AWS::DynamoDB::Table"
@@ -85,20 +125,43 @@ Resources:
             AttributeName: !Ref RangeAttributeName
             AttributeType: !Ref RangeAttributeType
           - !Ref "AWS::NoValue"
+        - !If
+          - CreateSecondaryHashAttribute
+          -
+            AttributeName: !Ref SecondaryHashAttributeName
+            AttributeType: !Ref SecondaryHashAttributeType
+          - !Ref "AWS::NoValue"
+        - !If
+          - CreateSecondaryRangeAttribute
+          -
+            AttributeName: !Ref SecondaryRangeAttributeName
+            AttributeType: !Ref SecondaryRangeAttributeType
+          - !Ref "AWS::NoValue"
       ProvisionedThroughput:
         ReadCapacityUnits: !Ref ReadCapacityUnits
         WriteCapacityUnits: !Ref WriteCapacityUnits
+      BillingMode: !If [NotOnDemandBilling, 'PROVISIONED', 'PAY_PER_REQUEST']
       GlobalSecondaryIndexes: !If
-        - HasSecondaryIndexAttribute
+        - HasSecondaryHashAttribute
         -
-          - IndexName: !Join
-                       - '-'
-                       - - !Ref SecondaryIndexAttributeName
-                         - 'index'
+          - IndexName: !If
+              - HasSecondaryIndexName
+              - !Ref SecondaryIndexName
+              - !Join
+                - '-'
+                - - !Ref SecondaryHashAttributeName
+                  - 'index'
             KeySchema:
-              - AttributeName: !Ref SecondaryIndexAttributeName
+              -
+                AttributeName: !Ref SecondaryHashAttributeName
                 KeyType: "HASH"
-            Projection: 
+              - !If
+                - HasSecondaryRangeAttribute
+                -
+                  AttributeName: !Ref SecondaryRangeAttributeName
+                  KeyType: "RANGE"
+                - !Ref "AWS::NoValue"
+            Projection:
               ProjectionType: "ALL"
             ProvisionedThroughput:
               ReadCapacityUnits: !Ref ReadCapacityUnits
